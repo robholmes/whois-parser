@@ -1,8 +1,8 @@
 {
-    "name": "robholmes/WhoisParser",
+    "name": "robholmes/whois-parser",
     "description": "Whois Parser",
     "keywords": [],
-    "homepage": "http://github.com/robholmes/WhoisParser",
+    "homepage": "http://github.com/robholmes/whois-parser",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -19,6 +19,6 @@
         "psr-0": {"WhoisParser": "lib/"}
     },
     "require": {
-        "robholmes/DomainParser": "dev-master"
+        "robholmes/domain-parser": "dev-master"
     }
 }
