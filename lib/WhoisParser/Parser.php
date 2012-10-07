@@ -260,7 +260,7 @@ class Parser
             $this->Query = new \stdClass();
             $this->Query->asn = $query;
         } else {
-            $Parser = new \Novutec\Domainparser\Parser();
+            $Parser = new \Domainparser\Parser();
             $this->Query = $Parser->parse(filter_var($query, FILTER_SANITIZE_STRING));
         }
     }
