@@ -18,12 +18,6 @@
     "autoload": {
         "psr-0": {"WhoisParser": "/"}
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "http://github.com/robholmes/DomainParser"
-        }
-    ],
     "require": {
         "robholmes/DomainParser": "dev-master"
     }
