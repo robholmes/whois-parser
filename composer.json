@@ -25,6 +25,6 @@
         }
     ],
     "require": {
-        "robholmes/DomainParser": "*"
+        "robholmes/DomainParser": "dev-master"
     }
 }
