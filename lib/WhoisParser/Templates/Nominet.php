@@ -61,9 +61,11 @@ class Template_Nominet extends AbstractTemplate
                     '/^(?>[\x20\t]+)(.+)$/im' => 'nameserver'),
             3 => array(
                     '/Expiry date:(?>[\x20\t]+)(.+)$/im' => 'expires', 
-                    '/Registered on:(?>[\x20\t]+)(.+)$/im' => 'created'),
+                    '/Registered on:(?>[\x20\t]+)(.+)$/im' => 'created',
+                    '/Last updated:(?>[\x20\t]+)(.+)$/im' => 'changed'),
             4 => array(
-                    '/^(?>[\x20\t]+)(.+)$/im' => 'registrar:name')
+                    '/^(?>[\x20\t]+)(.+)$/im' => 'registrar:name',
+                    '/URL: (.+)$/im' => 'registrar:url')
     );
 
     /**
