@@ -422,7 +422,8 @@ class Parser
      */
     private function parseTemplate($Template)
     {
-        if (!($Template instanceof WhoisParser\Template_Iana)) { var_dump($this->rawdata); die; }
+        var_dump(get_class($Template));
+        if (get_class($Template) != 'WhoisParser\Template_Iana') { var_dump($this->rawdata); die; }
         
         // lookup all blocks of template
         foreach ($Template->blocks as $blockKey => $blockRegEx) {
