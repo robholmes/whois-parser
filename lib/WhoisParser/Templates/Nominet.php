@@ -42,10 +42,10 @@ class Template_Nominet extends AbstractTemplate
 	 * @access protected
 	 */
     protected $blocks = array(
-            1 => '/Registrant:[\r\n](.*?)[\r\n]{2}/is',
-            2 => '/Name servers:[\r\n](.*?)[\r\n]{2}/is',
-            3 => '/Relevant dates:[\r\n](.*?)[\r\n]{2}/is',
-            4 => '/Registrar:[\r\n](.*?)[\r\n]{2}$/im'
+            1 => '/Registrant:[\r\n](.*?)[\n]{2}/is',
+            2 => '/Name servers:[\r\n](.*?)[\n]{2}/is',
+            3 => '/Relevant dates:[\r\n](.*?)[\n]{2}/is',
+            4 => '/Registrar:[\r\n](.*?)[\n]{2}$/im'
     );
 
     /**
