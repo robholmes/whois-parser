@@ -422,7 +422,7 @@ class Parser
      */
     private function parseTemplate($Template)
     {
-        var_dump($Template); die;
+        if ($Template instanceof Template_Iana) { var_dump($this->rawdata); die; }
         
         // lookup all blocks of template
         foreach ($Template->blocks as $blockKey => $blockRegEx) {
