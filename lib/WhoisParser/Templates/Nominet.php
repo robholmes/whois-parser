@@ -41,9 +41,12 @@ class Template_Nominet extends AbstractTemplate
 	 * @var array
 	 * @access protected
 	 */
-    protected $blocks = array(1 => '/registrar technical contacts:[\r\n](.*?)[\n]{2}/is', 
-            2 => '/registrar:[\r\n](.*?)[\n]{2}/is', 3 => '/name servers:[\r\n](.*?)[\n]{2}/is', 
-            4 => '/keys:[\r\n](.*?)[\n]{2}/is');
+    protected $blocks = array(
+            1 => '/(?>[\x20\t]*)Registrant:(?>[\x20\t]*)(.*?)(?=Administrative Contact\:|Contact\:)/is',
+            3 => '/(?>[\x20\t]*)Name servers:[\r\n](.*?)[\n]{2}/is',
+            4 => '/(?>[\x20\t]*)Relevant dates:[\r\n](.*?)[\n]{2}/is',
+            6 => '/(?>[\x20\t]*)Registrar(?>[\x20\t]*)(.*?)$/is'
+    );
 
     /**
 	 * Items for each block
@@ -52,19 +55,16 @@ class Template_Nominet extends AbstractTemplate
 	 * @access protected
 	 */
     protected $blockItems = array(
-            1 => array('/^(?>[\x20\t]*)name:(?>[\x20\t]*)(.+)$/im' => 'contacts:tech:name', 
-                    '/^(?>[\x20\t]*)organisation:(?>[\x20\t]*)(.+)$/im' => 'contacts:tech:organization', 
-                    '/^(?>[\x20\t]*)language:(?>[\x20\t]*)(.+)$/im' => 'contacts:tech:language', 
-                    '/^(?>[\x20\t]*)phone:(?>[\x20\t]*)(.+)$/im' => 'contacts:tech:phone', 
-                    '/^(?>[\x20\t]*)fax:(?>[\x20\t]*)(.+)$/im' => 'contacts:tech:fax', 
-                    '/^(?>[\x20\t]*)email:(?>[\x20\t]*)(.+)$/im' => 'contacts:tech:email'), 
-            
-            2 => array('/^(?>[\x20\t]*)name:(?>[\x20\t]*)(.+)$/im' => 'registrar:name', 
-                    '/^(?>[\x20\t]*)website:(?>[\x20\t]*)(.+)$/im' => 'registrar:url'), 
-            
-            3 => array('/^(?>[\x20\t]+)(.+)$/im' => 'nameserver'), 
-            
-            4 => array('/^(?>[\x20\t]+)keyTag:(.+)$/im' => 'dnssec'));
+            1 => array(
+                    '/(?>[\x20\t]*)Registrant:[\r\n]{1,2}(?>[\x20\t]*)(.*?)[\r\n]{2}/is' => 'contacts:owner:name'), 
+            3 => array(
+                    '/^(?>[\x20\t]+)(.+)$/im' => 'nameserver'),
+            4 => array(
+                    '/^(?>[\x20\t]*)Relevant dates:(?>[\x20\t]*)Registered on:(?>.*?)Expiry date:(?>[\x20\t]*)(.+)$/im' => 'expires', 
+                    '/^(?>[\x20\t]*)Relevant dates:(?>[\x20\t]*)Registered on:(?>[\x20\t]*)(.+)$/im' => 'created'),
+            6 => array(
+                    '/^(?>[\x20\t]*)Registrar:(?>[\x20\t]*)(.+)$/im' => 'registrar:name')
+    );
 
     /**
      * RegEx to check availability of the domain name
