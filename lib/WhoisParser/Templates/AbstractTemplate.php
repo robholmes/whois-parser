@@ -99,6 +99,8 @@ abstract class AbstractTemplate
      */
     public static function factory($template)
     {
+        var_dump($template); die;
+        
         if (file_exists(__DIR__ . '/' . ucfirst($template) . '.php')) {
             include_once __DIR__ . '/' . ucfirst($template) . '.php';
             $classname = 'WhoisParser\Template_' . ucfirst($template);
