@@ -422,6 +422,8 @@ class Parser
      */
     private function parseTemplate($Template)
     {
+        var_dump($this->rawdata); die;
+        
         // lookup all blocks of template
         foreach ($Template->blocks as $blockKey => $blockRegEx) {
             // try to match block regex against WHOIS rawdata
