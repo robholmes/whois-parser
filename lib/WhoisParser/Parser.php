@@ -431,6 +431,7 @@ class Parser
                 // use matched block to lookup for blockItems
                 foreach ($blockMatches[0] as $item) {
                     foreach ($Template->blockItems[$blockKey] as $itemRegEx => $target) {
+                        var_dump($blockKey.' : '.$target.' : '.$itemRegEx);
                         // try to match blockItem regex against block
                         if (preg_match_all($itemRegEx, $item, $itemMatches)) {
                             // set matched items to Result
