@@ -45,7 +45,7 @@ class Template_Nominet extends AbstractTemplate
             1 => '/Registrant:[\r\n](.*?)[\r\n]{2}/is',
             2 => '/Name servers:[\r\n](.*?)[\r\n]{2}/is',
             3 => '/Relevant dates:[\r\n](.*?)[\r\n]{2}/is',
-            4 => '/Registrar:[\r\n](.*?)[\r\n]{2}$/is'
+            4 => '/Registrar:[\r\n](.*?)[\r\n]{2}$/im'
     );
 
     /**
@@ -64,7 +64,7 @@ class Template_Nominet extends AbstractTemplate
                     '/Registered on:(?>[\x20\t]+)(.+)$/im' => 'created',
                     '/Last updated:(?>[\x20\t]+)(.+)$/im' => 'changed'),
             4 => array(
-                    '/^(?>[\x20\t]*)(.+)$/im' => 'registrar:name',
+                    '/^(?>[\x20\t]+)(.+)$/im' => 'registrar:name',
                     '/URL: (.+)$/im' => 'registrar:url')
     );
 
