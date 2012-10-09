@@ -42,10 +42,10 @@ class Template_Nominet extends AbstractTemplate
 	 * @access protected
 	 */
     protected $blocks = array(
-            1 => '/(?>[\x20\t]*)Registrant:(?>[\x20\t]*)(.*?)(?=Administrative Contact\:|Contact\:)/is',
-            3 => '/(?>[\x20\t]*)Name servers:[\r\n](.*?)[\n]{2}/is',
-            4 => '/(?>[\x20\t]*)Relevant dates:[\r\n](.*?)[\n]{2}/is',
-            6 => '/(?>[\x20\t]*)Registrar(?>[\x20\t]*)(.*?)$/is'
+            1 => '/Registrant:[\r\n](.*?)[\r\n]{2}/is',
+            2 => '/Name servers:[\r\n](.*?)[\r\n]{2}/is',
+            3 => '/Relevant dates:[\r\n](.*?)[\r\n]{2}/is',
+            4 => '/Registrar:[\r\n](.*?)[\r\n]{2}$/is'
     );
 
     /**
@@ -56,13 +56,13 @@ class Template_Nominet extends AbstractTemplate
 	 */
     protected $blockItems = array(
             1 => array(
-                    '/(?>[\x20\t]*)Registrant:[\r\n]{1,2}(?>[\x20\t]*)(.*?)[\r\n]{2}/is' => 'contacts:owner:name'), 
-            3 => array(
+                    '/(?>[\x20\t]*)(.*?)$/is' => 'contacts:owner:name'), 
+            2 => array(
                     '/^(?>[\x20\t]+)(.+)$/im' => 'nameserver'),
-            4 => array(
+            3 => array(
                     '/^(?>[\x20\t]*)Relevant dates:(?>[\x20\t]*)Registered on:(?>.*?)Expiry date:(?>[\x20\t]*)(.+)$/im' => 'expires', 
                     '/^(?>[\x20\t]*)Relevant dates:(?>[\x20\t]*)Registered on:(?>[\x20\t]*)(.+)$/im' => 'created'),
-            6 => array(
+            4 => array(
                     '/^(?>[\x20\t]*)Registrar:(?>[\x20\t]*)(.+)$/im' => 'registrar:name')
     );
 
