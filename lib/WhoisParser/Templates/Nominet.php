@@ -56,14 +56,14 @@ class Template_Nominet extends AbstractTemplate
 	 */
     protected $blockItems = array(
             1 => array(
-                    '/(?>[\x20\t]*)(.*?)$/is' => 'contacts:owner:name'), 
+                    '/^(?>[\x20\t]+)(.+)$/im' => 'contacts:owner:name'), 
             2 => array(
                     '/^(?>[\x20\t]+)(.+)$/im' => 'nameserver'),
             3 => array(
-                    '/^(?>[\x20\t]*)Relevant dates:(?>[\x20\t]*)Registered on:(?>.*?)Expiry date:(?>[\x20\t]*)(.+)$/im' => 'expires', 
-                    '/^(?>[\x20\t]*)Relevant dates:(?>[\x20\t]*)Registered on:(?>[\x20\t]*)(.+)$/im' => 'created'),
+                    '/Expiry date:(?>[\x20\t]+)(.+)$/im' => 'expires', 
+                    '/Registered on:(?>[\x20\t]+)(.+)$/im' => 'created'),
             4 => array(
-                    '/^(?>[\x20\t]*)Registrar:(?>[\x20\t]*)(.+)$/im' => 'registrar:name')
+                    '/^(?>[\x20\t]+)(.+)$/im' => 'registrar:name')
     );
 
     /**
