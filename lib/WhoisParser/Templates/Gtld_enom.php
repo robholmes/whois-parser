@@ -88,8 +88,8 @@ class Template_Gtld_enom extends AbstractTemplate
                     }
                     if (isset($explodedAddress[1])) {
                         preg_match('/(.*)\((.*)\)/', $explodedAddress[1], $matchesEmail);
-                        $contactObject->name = trim($matchesEmail[1]);
-                        $contactObject->email = $matchesEmail[2];
+                        if ( isset($matchesEmail[1]) ) { $contactObject->name = trim($matchesEmail[1]); }
+                        if ( isset($matchesEmail[2]) ) { $contactObject->email = $matchesEmail[2]; }
                     }
                     if (isset($explodedAddress[2])) {
                         $contactObject->phone = trim($explodedAddress[2]);
