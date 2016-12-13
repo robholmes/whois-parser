@@ -15,24 +15,26 @@
  *
  * @category   Novutec
  * @package    DomainParser
- * @copyright  Copyright (c) 2007 - 2012 Novutec Inc. (http://www.novutec.com)
+ * @copyright  Copyright (c) 2007 - 2013 Novutec Inc. (http://www.novutec.com)
  * @license    http://www.apache.org/licenses/LICENSE-2.0
  */
 
 /**
- * @namespace WhoisParser
+ * @namespace Novutec\WhoisParser\Templates
  */
-namespace WhoisParser;
+namespace Novutec\WhoisParser\Templates;
+
+use Novutec\WhoisParser\Templates\Type\Regex;
 
 /**
  * Template for .AM
  *
  * @category   Novutec
  * @package    WhoisParser
- * @copyright  Copyright (c) 2007 - 2012 Novutec Inc. (http://www.novutec.com)
+ * @copyright  Copyright (c) 2007 - 2013 Novutec Inc. (http://www.novutec.com)
  * @license    http://www.apache.org/licenses/LICENSE-2.0
  */
-class Template_Am extends AbstractTemplate
+class Am extends Regex
 {
 
     /**
@@ -41,13 +43,12 @@ class Template_Am extends AbstractTemplate
 	 * @var array
 	 * @access protected
 	 */
-    protected $blocks = array(
-            1 => '/(?>[\x20\t]*)Domain name:(?>[\x20\t]*)(.*?)(?=Registrant\:)/is', 
-            2 => '/(?>[\x20\t]*)Registrant:(?>[\x20\t]*)(.*?)(?=Administrative contact)/is', 
-            3 => '/(?>[\x20\t]*)Administrative contact:(?>[\x20\t]*)(.*?)(?=Technical contact)/is', 
-            4 => '/(?>[\x20\t]*)Technical contact:(?>[\x20\t]*)(.*?)(?=DNS servers)/is', 
-            5 => '/(?>[\x20\t]*)DNS servers:(?>[\x20\t]*)(.*?)(?=Registered)/is', 
-            6 => '/(?>[\x20\t]*)Registered:(?>[\x20\t]*)(.*?)$/is');
+    protected $blocks = array(1 => '/Domain name:(?>[\x20\t]*)(.*?)(?=Registrant\:)/is', 
+            2 => '/Registrant:(?>[\x20\t]*)(.*?)(?=Administrative contact)/is', 
+            3 => '/Administrative contact:(?>[\x20\t]*)(.*?)(?=Technical contact)/is', 
+            4 => '/Technical contact:(?>[\x20\t]*)(.*?)(?=DNS servers|No name servers)/is', 
+            5 => '/DNS servers:(?>[\x20\t]*)(.*?)(?=Registered)/is', 
+            6 => '/Registered:(?>[\x20\t]*)(.*?)$/is');
 
     /**
 	 * Items for each block
@@ -56,19 +57,16 @@ class Template_Am extends AbstractTemplate
 	 * @access protected
 	 */
     protected $blockItems = array(
-            1 => array('/(?>[\x20\t]*)Registrar:(?>[\x20\t]*)(.*?)$/im' => 'registrar:name', 
-                    '/(?>[\x20\t]*)Status:(?>[\x20\t]*)(.*?)$/im' => 'status'), 
-            2 => array(
-                    '/(?>[\x20\t]*)Registrant:[\r\n]{1,2}(?>[\x20\t]*)(.*?)[\n]{2}/is' => 'contacts:owner:address'), 
+            1 => array('/Registrar:(?>[\x20\t]*)(.*?)$/im' => 'registrar:name', 
+                    '/Status:(?>[\x20\t]*)(.*?)$/im' => 'status'), 
+            2 => array('/Registrant:\n(?>[\x20\t]*)(.*?)$/is' => 'contacts:owner:address'), 
             3 => array(
-                    '/(?>[\x20\t]*)Administrative contact:[\r\n]{1,2}(?>[\x20\t]*)(.*?)[\n]{2}/is' => 'contacts:admin:address'), 
-            4 => array(
-                    '/(?>[\x20\t]*)Technical Contact:[\r\n]{1,2}(?>[\x20\t]*)(.*?)[\n]{2}/is' => 'contacts:tech:address'), 
-            5 => array(
-                    '/(?>[\x20\t]*)DNS servers:[\r\n]{1,2}(?>[\x20\t]*)(.*?)$/is' => 'nameserver'), 
-            6 => array('/^(?>[\x20\t]*)Registered:(?>[\x20\t]*)(.+)$/im' => 'created', 
-                    '/^(?>[\x20\t]*)Last modified:(?>[\x20\t]*)(.+)$/im' => 'changed', 
-                    '/^(?>[\x20\t]*)Expires:(?>[\x20\t]*)(.+)$/im' => 'expires'));
+                    '/Administrative contact:\n(?>[\x20\t]*)(.*?)$/is' => 'contacts:admin:address'), 
+            4 => array('/Technical Contact:\n(?>[\x20\t]*)(.*?)$/is' => 'contacts:tech:address'), 
+            5 => array('/\n(?>[\x20\t]+)(.+)$/im' => 'nameserver'), 
+            6 => array('/Registered:(?>[\x20\t]*)(.+)$/im' => 'created', 
+                    '/Last modified:(?>[\x20\t]*)(.+)$/im' => 'changed', 
+                    '/Expires:(?>[\x20\t]*)(.+)$/im' => 'expires'));
 
     /**
      * RegEx to check availability of the domain name
@@ -81,89 +79,89 @@ class Template_Am extends AbstractTemplate
     /**
      * After parsing do something
      *
-     * Fix address and nameservers
+     * Fix contact addresses
      *
-     * @param  object $whoisParser
+     * @param  object &$WhoisParser
      * @return void
      */
     public function postProcess(&$WhoisParser)
     {
         $ResultSet = $WhoisParser->getResult();
         $filteredAddress = array();
-        $filteredNameserver = array();
         
         foreach ($ResultSet->contacts as $contactType => $contactArray) {
             foreach ($contactArray as $contactObject) {
-                if (! is_array($contactObject->address)) {
-                    $explodedAddress = explode("\n", $contactObject->address);
+                $contactObject->address = array_map('trim', explode("\n", trim($contactObject->address)));
+                
+                if ($contactType === 'owner') {
+                    $contactObject->organization = $contactObject->address[0];
                     
-                    foreach ($explodedAddress as $key => $line) {
-                        $filteredAddress[] = trim($line);
+                    $explodedAddress = array_map('trim', explode(',', $contactObject->address[2]));
+                    
+                    if (sizeof($explodedAddress) === 2) {
+                        $contactObject->city = $explodedAddress[0];
+                        $contactObject->zipcode = $explodedAddress[1];
+                    } else {
+                        $contactObject->city = $explodedAddress[0];
+                        $contactObject->state = $explodedAddress[1];
+                        $contactObject->zipcode = $explodedAddress[2];
                     }
                     
-                    $contactObject->address = $filteredAddress;
-                    $filteredAddress = array();
-                }
-            }
-        }
-        
-        foreach ($ResultSet->contacts as $contactType => $contactArray) {
-            switch ($contactType) {
-                case 'owner':
-                    foreach ($contactArray as $contactObject) {
-                        $contactObject->organization = $contactObject->address[0];
-                        
-                        $explodedAddress = explode(',', $contactObject->address[2]);
-                        
-                        if (sizeof($explodedAddress) == 2) {
-                            $contactObject->city = trim($explodedAddress[0]);
-                            $contactObject->zipcode = trim($explodedAddress[1]);
-                        } else {
-                            $contactObject->city = trim($explodedAddress[0]);
-                            $contactObject->state = trim($explodedAddress[1]);
-                            $contactObject->zipcode = trim($explodedAddress[2]);
-                        }
-                        
-                        $contactObject->country = $contactObject->address[3];
-                        $contactObject->address = $contactObject->address[1];
-                    }
-                    break;
-                case 'admin':
-                case 'tech':
-                    foreach ($contactArray as $contactObject) {
-                        $contactObject->name = $contactObject->address[0];
-                        $contactObject->organization = $contactObject->address[1];
+                    $contactObject->country = $contactObject->address[3];
+                    $contactObject->address = $contactObject->address[1];
+                } else {
+                    $contactObject->name = $contactObject->address[0];
+                    $contactObject->organization = $contactObject->address[1];
+                    
+                    if (sizeof($contactObject->address) === 8) {
+                        // contact information is complete
                         $contactObject->country = $contactObject->address[4];
                         $contactObject->email = $contactObject->address[5];
                         $contactObject->phone = $contactObject->address[6];
                         $contactObject->fax = $contactObject->address[7];
                         
-                        $explodedAddress = explode(',', $contactObject->address[3]);
-                        
-                        if (sizeof($explodedAddress) == 2) {
-                            $contactObject->city = trim($explodedAddress[0]);
-                            $contactObject->zipcode = trim($explodedAddress[1]);
+                        $explodedAddress = array_map('trim', explode(',', $contactObject->address[3]));
+                    
+                        if (sizeof($explodedAddress) === 2) {
+                            $contactObject->city = $explodedAddress[0];
+                            $contactObject->zipcode = $explodedAddress[1];
                         } else {
-                            $contactObject->city = trim($explodedAddress[0]);
-                            $contactObject->state = trim($explodedAddress[1]);
-                            $contactObject->zipcode = trim($explodedAddress[2]);
+                            $contactObject->city = $explodedAddress[0];
+                            $contactObject->state = $explodedAddress[1];
+                            $contactObject->zipcode = $explodedAddress[2];
                         }
                         
                         $contactObject->address = $contactObject->address[2];
+                    } else {
+                        // some fields are missing
+                        $address = $contactObject->address;
+                        krsort($address);
+                        while (list($key, $val) = each($address)) {
+                            if (preg_match("/([+]*[-\(\)\. x0-9]){7,}/", $val, $matches)) {
+                                $contactObject->phone = $matches[0];
+                                continue;
+                            }
+                            if (preg_match("/([+]*[-\(\)\. x0-9]){7,}/", $val, $matches)) {
+                                $contactObject->fax = $matches[0];
+                                continue;
+                            }
+                            if (preg_match("/([-0-9a-zA-Z._+&\/=]+@([-0-9a-zA-Z]+[.])+[a-zA-Z]{2,6})/", $val, $matches)) {
+                                $contactObject->email = $matches[0];
+                                continue;
+                            }
+                            if (preg_match("/^([a-zA-Z]{2})$/", $val, $matches)) {
+                                $contactObject->country = $matches[0];
+                                continue;
+                            }
+                        }
+                        $contactObject->name = $contactObject->address[0];
+                        $contactObject->organization = NULL;
+                        $address = array_slice($address, -4, 3);
+                        krsort($address);
+                        $contactObject->address = $address;
                     }
-                    break;
-            }
-        }
-        
-        if (isset($ResultSet->nameserver) && $ResultSet->nameserver != '' &&
-                 ! is_array($ResultSet->nameserver)) {
-            $explodedNameserver = explode("\n", $ResultSet->nameserver);
-            foreach ($explodedNameserver as $key => $line) {
-                if (trim($line) != '') {
-                    $filteredNameserver[] = strtolower(trim($line));
                 }
             }
-            $ResultSet->nameserver = $filteredNameserver;
         }
     }
 }
